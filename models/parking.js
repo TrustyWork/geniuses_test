@@ -25,15 +25,13 @@ const PlacesSchema = {
 }
 
 const ParkingSchema = {
-	// _id will be created by Mongo
-
 	name: {
 		type: Schema.Types.String
 	},
 
 	geo: {
 		lat: {
-			
+			type: Schema.Types.String
 		}, lon: {
 			type: Schema.Types.String
 		}
@@ -46,9 +44,30 @@ const ParkingSchema = {
 
 const Parking = new Schema(ParkingSchema);
 
-//id -> user
-Parking.statics.setOccupied = function () {
-	
+Parking.statics.checkFreePlace = function ( place, count) {
+	let check =  this.places[ place] - this.places.occupied_places[ place] < count;
+	return check;
+}
+
+Parking.statics.setOccupied = function ( place, count = 1) {
+	return new Promise( (res, rej) => {
+		
+		if( typeof this.places[ place] == 'undefined'){
+			return rej( 'bad place');
+		}
+		
+		if( !this.checkFreePlace( place, count)) {
+			if( place == 'wheelchair' && this.checkFreePlace( 'common', count)) {
+				place = 'common';
+			}
+
+			return rej( 'no place');
+		}
+
+		let selector = `occupied_places.${place}`;
+		this.update( {} , { $inc: { selector: count } } );
+		res( place)
+	});
 };
 
 module.exports = mongoose.model('Parking', User);
