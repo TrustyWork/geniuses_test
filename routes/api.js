@@ -14,14 +14,14 @@ router.get('/parking/:id/:action', function (req, res) {
 		,action = req.params.action;
 	
 
-
-		if( action == 'status'){
+	switch( action) {
+		case 'status':
 			parking.status( id).then( ( data) => {
 				res.json({ status: 'ok', data: data});
 			});
-		}
+			break;
 
-		if( action == 'reservation'){
+		case 'reservation':
 
 			if( !req.body.place || !req.body.count) {
 				res.json({ status: 'error', message: 'bad params'});
@@ -33,9 +33,11 @@ router.get('/parking/:id/:action', function (req, res) {
 			}).catch( ( err) => {
 				res.json({ status: 'error', message: err});
 			})
-		}
-		
-		res.json({ status: 'error', message: `unknown method ${action}`});
+
+			break;
+		default:
+			res.json({ status: 'error', message: `unknown method ${action}`});
+	}
 });
 
 module.exports = router;

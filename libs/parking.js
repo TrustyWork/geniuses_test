@@ -1,18 +1,31 @@
 const ModelParking = require('models/parking');
 
-module.exports.reservation = mongoose.model('User', User);
-ModelParking.findById(id)
-		.then( (doc) => {
 
-			if( action == 'status'){
-				return;
-			}
+module.exports.status = ( id) => {
+	return new Promise( ( res, rej) => {
+		
+		ModelParking.findById(id).then( (doc) => {
 
-			if( action == 'reservation'){
-				if( !req.body.place || !req.body.count) {
-					res.json({ status: 'error', message: 'bad params'});
-					return;
+			let result = {}
+			for( var vehclass in doc.places){
+				result[ vehclass] = {
+					max: doc.places[vehclass],
+					occupied: doc.occupied_places[vehclass]
 				}
+			}
+			
+			res( result);
+		
+		}).catch( ( err) => {
+			rej( `Can't find id ${id}`);
+		});
+	})
+}
+
+module.exports.reservation = ( id, params) => {
+	return new Promise( ( res, rej) => {
+		
+		ModelParking.findById(id).then( (doc) => {
 					
 				let place = req.body.place,
 					count = req.body.count;
@@ -25,9 +38,8 @@ ModelParking.findById(id)
 						res.json({ status: 'error', message: err});
 					})
 			}
-
-			res.json({ status: 'error', message: `unknown method ${action}`});
 		}).catch( ( err) => {
-			//res.json({ status: 'error', message: 'unknown error'});
-			return res.json({ status: 'error', message: `Can't find id ${id}`});
-		})
+			rej( `Can't find id ${id}`);
+		});
+	})
+}
