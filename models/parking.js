@@ -12,7 +12,7 @@ const PlacesSchema = {
 	trucks: {
 		type: Schema.Types.Number,
 		min: 0,
-		ddefault: 0 
+		default: 0
 	}, wheelchair: {
 		type: Schema.Types.Number,
 		min: 0,
@@ -44,14 +44,16 @@ const ParkingSchema = {
 
 const Parking = new Schema(ParkingSchema);
 
-Parking.statics.checkFreePlace = function ( place, count) {
-	let check =  this.places[ place] - this.places.occupied_places[ place] < count;
+Parking.methods.checkFreePlace = function ( place, count) {
+
+	console.log( this.places[ place]);
+	let check = this.places[ place] - this.occupied_places[ place] < count;
 	return check;
 }
 
-Parking.statics.setOccupied = function ( place, count = 1) {
+Parking.methods.setOccupied = function ( place, count = 1) {
 	return new Promise( (res, rej) => {
-		
+
 		if( typeof this.places[ place] == 'undefined'){
 			return rej( 'bad place');
 		}
@@ -66,7 +68,7 @@ Parking.statics.setOccupied = function ( place, count = 1) {
 
 		let selector = `occupied_places.${place}`;
 		this.update( {} , { $inc: { selector: count } } );
-		res( place)
+		res( this, place)
 	});
 };
 

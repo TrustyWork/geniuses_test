@@ -1,5 +1,6 @@
 /* For Test */
 const ModelParking = require('models/parking');
+const parking = require('libs/parking');
 
 ModelParking.findOne( { name: 'test A'}).then( ( doc) => {
 
@@ -22,3 +23,24 @@ ModelParking.findOne( { name: 'test A'}).then( ( doc) => {
 	});
 	model.save();
 });
+
+
+let id = '5955fa05926810170487c5b2';
+function reservation( params) {
+	parking.reservation( id, params).then( ( data, place) => {
+		console.log( 'reservation', { status: 'ok', data: data, place: place});
+	}).catch( ( err) => {
+		console.log( 'reservation', { status: 'error', message: err});
+	})
+}
+
+function status() {
+	parking.status( id).then( ( data) => {
+		console.log( 'status', { status: 'ok', data: data});
+	}).catch( ( err) => {
+		console.log( 'status', { status: 'error', message: err});
+	})
+}
+
+status();
+reservation({ place: 'wheelchair', count: 10});

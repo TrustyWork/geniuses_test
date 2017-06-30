@@ -18,9 +18,11 @@ router.get('/parking/:id/:action', function (req, res) {
 		case 'status':
 			parking.status( id).then( ( data) => {
 				res.json({ status: 'ok', data: data});
-			});
-			break;
+			}).catch( ( err) => {
+				res.json({ status: 'error', message: err});
+			})
 
+			break;
 		case 'reservation':
 
 			if( !req.body.place || !req.body.count) {
