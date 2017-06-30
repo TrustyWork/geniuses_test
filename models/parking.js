@@ -45,9 +45,25 @@ const ParkingSchema = {
 const Parking = new Schema(ParkingSchema);
 
 Parking.methods.checkFreePlace = function ( place, count) {
+	
 
-	console.log( this.places[ place]);
-	let check = this.places[ place] - this.occupied_places[ place] < count;
+	let freePlace = this.places[ place] - this.occupied_places[ place]
+
+	if( freePlace >= count) {
+		let result = {
+			check: true
+		}
+
+		result[ place] = count;
+	}
+
+	if( place == 'wheelchair' && this.checkFreePlace( 'common', count)) {
+		
+		let result = {
+			status: null
+		};	
+		place = 'common';
+	}
 	return check;
 }
 
@@ -59,17 +75,25 @@ Parking.methods.setOccupied = function ( place, count = 1) {
 		}
 		
 		if( !this.checkFreePlace( place, count)) {
-			if( place == 'wheelchair' && this.checkFreePlace( 'common', count)) {
-				place = 'common';
-			}
-
 			return rej( 'no place');
 		}
 
-		let selector = `occupied_places.${place}`;
-		this.update( {} , { $inc: { selector: count } } );
-		res( this, place)
+		let id = this.id;
+
+		let update = { $inc: {} }
+		update.$inc[ `occupied_places.${place}`] = count;
+
+		model.findOneAndUpdate({_id: id}, update).exec()
+			.then( ( doc) => {
+
+				//if( doc.occupied_places[ place] > doc.occupied[ place]){
+					
+				//}
+				res( { doc: doc, place})
+			});
+		
 	});
 };
 
-module.exports = mongoose.model('Parking', Parking);
+let model = mongoose.model('Parking', Parking);
+module.exports = model;

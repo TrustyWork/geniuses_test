@@ -1,5 +1,17 @@
 const ModelParking = require('models/parking');
 
+const parkings = {}
+
+ModelParking.find( {}).then( ( docs) => {
+
+	for( let idx in docs){
+		let doc = docs[idx];
+
+		let id = doc.id;
+		parkings[id] = doc;
+	}
+});
+
 const calcStatus = ( doc) => {
 	let result = {}
 
@@ -14,17 +26,22 @@ const calcStatus = ( doc) => {
 	return result;
 }
 
-module.exports.status = ( id) => {
-	return new Promise( ( res, rej) => {
-		
-		ModelParking.findById(id).then( (doc) => {
+module.exports.newpark = ( params) => {
 
-			let result = calcStatus( doc);
-			res( result);
-		}).catch( ( err) => {
-			rej( `Can't find id ${id}`);
-		});
-	})
+	var model = new ModelParking( params);
+	model.save().then( ( doc) => {
+		let id = doc.id;
+		parkings[id] = doc;
+	});
+}
+
+module.exports.status = ( id) => {
+	
+	if( typeof parkings[id] == 'undefined'){
+		return false;
+	}
+
+	return calcStatus( parkings[id]);
 }
 
 module.exports.reservation = ( id, params) => {
@@ -35,13 +52,15 @@ module.exports.reservation = ( id, params) => {
 			let place = params.place,
 				count = params.count;
 
-			return doc.setOccupied( place, count).then( ( doc, place) =>{
-			console.log()
-				let result = calcStatus( doc);
-				res( result, place);
+			return doc.setOccupied( place, count).then( ( data) => {
+				let doc = data.doc,
+					result = calcStatus( doc);
+
+				res( { result: result, place: data.place});
 			}).catch( ( err) =>{
 				rej(err);
 			});
+
 		}).catch( ( err) => {
 
 			if( err.name == 'CastError' && err.path == '_id') {

@@ -2,13 +2,8 @@
 const ModelParking = require('models/parking');
 const parking = require('libs/parking');
 
-ModelParking.findOne( { name: 'test A'}).then( ( doc) => {
-
-	if( doc){
-		return;
-	}
-
-	var model = new ModelParking({ 
+//ModelParking.findOne( { name: 'test A'}).then( ( doc) => {
+{ 
 		name: 'test A',
 
 		geo: {
@@ -20,27 +15,20 @@ ModelParking.findOne( { name: 'test A'}).then( ( doc) => {
 			wheelchair: 5, 
 			common: 15
 		}
-	});
-	model.save();
-});
-
+	}
 
 let id = '5955fa05926810170487c5b2';
 function reservation( params) {
-	parking.reservation( id, params).then( ( data, place) => {
-		console.log( 'reservation', { status: 'ok', data: data, place: place});
+	parking.reservation( id, params).then( ( data) => {
+		console.log( 'reservation', { status: 'ok', data1: data.result.common, data2: data.result.wheelchair, data3: data.result.trucks, place: data.place}, "\n\n\n");
 	}).catch( ( err) => {
-		console.log( 'reservation', { status: 'error', message: err});
+		console.log( 'reservation', { status: 'error', message: err}, "\n\n\n");
 	})
 }
 
 function status() {
-	parking.status( id).then( ( data) => {
-		console.log( 'status', { status: 'ok', data: data});
-	}).catch( ( err) => {
-		console.log( 'status', { status: 'error', message: err});
-	})
+	console.log( 'status', parking.status( id));
 }
 
 status();
-reservation({ place: 'wheelchair', count: 10});
+//reservation({ place: 'wheelchair', count: 3});
