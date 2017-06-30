@@ -31,9 +31,9 @@ const ParkingSchema = {
 
 	geo: {
 		lat: {
-			type: Schema.Types.String
+			type: Schema.Types.Number
 		}, lon: {
-			type: Schema.Types.String
+			type: Schema.Types.Number
 		}
 	},
 
@@ -70,4 +70,4 @@ Parking.statics.setOccupied = function ( place, count = 1) {
 	});
 };
 
-module.exports = mongoose.model('Parking', User);
+module.exports = mongoose.model('Parking', Parking);
